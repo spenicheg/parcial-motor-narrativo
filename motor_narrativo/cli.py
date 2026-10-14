@@ -15,7 +15,7 @@ from .errores import ErrorContenido
 from .modelo import Historia
 from .sesion import EstadoSesion, Sesion
 
-AYUDA = "Escriba el número de una opción, 'r' para reiniciar o 's' para salir."
+AYUDA = "Escriba el número de una opción, 'd' para deshacer, 'r' para reiniciar o 's' para salir."
 
 
 def jugar(historia: Historia, entrada: Callable[[str], str] = input,
@@ -29,15 +29,15 @@ def jugar(historia: Historia, entrada: Callable[[str], str] = input,
         opciones = sesion.opciones_disponibles()
         if estado is EstadoSesion.FINAL:
             salida(f"*** FINAL ALCANZADO ({escena.id}) ***")
-            salida("[r] Nueva partida   [s] Salir")
+            salida(_menu(sesion, "[r] Nueva partida"))
         elif estado is EstadoSesion.BLOQUEADA:
             salida("! No hay opciones disponibles en esta escena. "
                    "Es probable que la historia tenga un error; avise a quien la escribió.")
-            salida("[r] Reiniciar   [s] Salir")
+            salida(_menu(sesion, "[r] Reiniciar"))
         else:
             for i, o in enumerate(opciones, start=1):
                 salida(f"  {i}. {o.texto}")
-            salida("[r] Reiniciar   [s] Salir")
+            salida(_menu(sesion, "[r] Reiniciar"))
 
         try:
             cmd = entrada("> ").strip().lower()
@@ -48,6 +48,10 @@ def jugar(historia: Historia, entrada: Callable[[str], str] = input,
         if cmd == "s":
             salida("Hasta pronto.")
             return
+        if cmd == "d":
+            resultado = sesion.deshacer()
+            salida(("\n<<< " if resultado.aceptada else "") + resultado.mensaje)
+            continue
         if cmd == "r":
             sesion.reiniciar()
             salida("\n--- Nueva partida ---")
@@ -58,6 +62,11 @@ def jugar(historia: Historia, entrada: Callable[[str], str] = input,
                 salida(resultado.mensaje)
             continue
         salida(f"Entrada no válida. {AYUDA}")
+
+
+def _menu(sesion: Sesion, reiniciar: str) -> str:
+    partes = (["[d] Deshacer"] if sesion.puede_deshacer else []) + [reiniciar, "[s] Salir"]
+    return "   ".join(partes)
 
 
 def main(argv: list[str] | None = None) -> int:

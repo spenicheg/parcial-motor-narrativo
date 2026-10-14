@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from types import MappingProxyType
+from typing import Mapping
 
 from .modelo import Escena, Historia, Opcion
 
@@ -23,8 +25,21 @@ class ResultadoEleccion:
     mensaje: str
 
 
+@dataclass(frozen=True)
+class Instantanea:
+    """Estado completo de la partida en un momento dado (inmutable)."""
+    escena_id: str
+    variables: Mapping[str, bool]
+    recorrido: tuple[str, ...]
+
+
 class Sesion:
-    """Una partida. El estado solo cambia mediante elegir() o reiniciar()."""
+    """Una partida. El estado solo cambia mediante elegir(), deshacer() o reiniciar().
+
+    Retroceso de un solo nivel (solicitud de cambio, hora 6): antes de aplicar una
+    elección válida se guarda una instantánea del estado; deshacer() la restaura y
+    la consume. Las entradas inválidas no tocan la instantánea.
+    """
 
     def __init__(self, historia: Historia):
         self._historia = historia
@@ -49,6 +64,10 @@ class Sesion:
         """IDs de escenas visitadas en esta partida, en orden."""
         return list(self._recorrido)
 
+    @property
+    def puede_deshacer(self) -> bool:
+        return self._anterior is not None
+
     def opciones_disponibles(self) -> list[Opcion]:
         return [o for o in self.escena.opciones if o.habilitada(self._variables)]
 
@@ -64,9 +83,9 @@ class Sesion:
     def elegir(self, opcion_id: object) -> ResultadoEleccion:
         estado = self.estado
         if estado is EstadoSesion.FINAL:
-            return ResultadoEleccion(False, "La partida terminó. Reinicie para jugar otra vez.")
+            return ResultadoEleccion(False, "La partida terminó. Reinicie o deshaga la última decisión.")
         if estado is EstadoSesion.BLOQUEADA:
-            return ResultadoEleccion(False, "No hay opciones disponibles en esta escena. Reinicie la partida.")
+            return ResultadoEleccion(False, "No hay opciones disponibles en esta escena. Reinicie o deshaga la última decisión.")
 
         opcion = next((o for o in self.opciones_disponibles() if o.id == opcion_id), None)
         if opcion is None:
@@ -77,13 +96,33 @@ class Sesion:
         # Las condiciones ya se evaluaron con el estado previo; ahora se aplican efectos.
         nuevas = dict(self._variables)
         nuevas.update(opcion.efectos)
+        anterior = self._instantanea()
         self._variables = nuevas
         self._escena_id = opcion.destino
-        self._recorrido.append(opcion.destino)
+        self._recorrido = self._recorrido + (opcion.destino,)
+        self._anterior = anterior  # solo una elección válida reemplaza el historial
         return ResultadoEleccion(True, f"Elegido: {opcion.texto}")
 
+    def deshacer(self) -> ResultadoEleccion:
+        """Revierte la última elección válida (escena, variables y recorrido). Un solo nivel."""
+        if self._anterior is None:
+            return ResultadoEleccion(False, "No hay una decisión para deshacer.")
+        self._restaurar(self._anterior)
+        self._anterior = None
+        return ResultadoEleccion(True, "Se deshizo la última decisión.")
+
     def reiniciar(self) -> None:
-        """Nueva partida: escena inicial y variables iniciales, sin rastro de la anterior."""
+        """Nueva partida: escena y variables iniciales, sin historial de la anterior."""
         self._escena_id = self._historia.inicio
         self._variables = dict(self._historia.variables_iniciales)
-        self._recorrido = [self._historia.inicio]
+        self._recorrido: tuple[str, ...] = (self._historia.inicio,)
+        self._anterior: Instantanea | None = None
+
+    # --- internos -------------------------------------------------------
+    def _instantanea(self) -> Instantanea:
+        return Instantanea(self._escena_id, MappingProxyType(dict(self._variables)), self._recorrido)
+
+    def _restaurar(self, i: Instantanea) -> None:
+        self._escena_id = i.escena_id
+        self._variables = dict(i.variables)
+        self._recorrido = i.recorrido
