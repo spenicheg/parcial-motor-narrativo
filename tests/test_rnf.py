@@ -102,20 +102,21 @@ def test_RNF03_entradas_aleatorias_del_lector_no_rompen_ni_alteran_el_estado():
     s = Sesion(construir_historia(datos_transmision()))
     rechazadas_que_alteraron = 0
     for _ in range(N_ENTRADAS):
-        if s.estado is not EstadoSesion.EN_CURSO:
+        if s.estado is not EstadoSesion.EN_CURSO and rnd.random() < 0.5:
             s.reiniciar()
         candidatas = ids(s.opciones_disponibles()) + ["activar_codigo", "activar_sin_verificar"] + BASURA
-        entrada = rnd.choice(candidatas)
-        antes = (s.escena.id, s.variables)
-        r = s.elegir(entrada)  # cualquier excepción aquí hace fallar la prueba
-        if not r.aceptada and (s.escena.id, s.variables) != antes:
+        entrada = rnd.choice(candidatas + ["__deshacer__"] * 3)
+        antes = (s.escena.id, s.variables, s.recorrido, s.puede_deshacer)
+        # cualquier excepción aquí hace fallar la prueba
+        r = s.deshacer() if entrada == "__deshacer__" else s.elegir(entrada)
+        if not r.aceptada and (s.escena.id, s.variables, s.recorrido, s.puede_deshacer) != antes:
             rechazadas_que_alteraron += 1
     assert rechazadas_que_alteraron == 0
 
 
 def test_RNF03_consola_no_se_cierra_ante_entradas_aleatorias():
     rnd = random.Random(SEMILLA)
-    teclas = [rnd.choice(["1", "2", "3", "0", "", "x", "99", "-1", "r", " 1 ", "S"]) for _ in range(N_ENTRADAS)]
+    teclas = [rnd.choice(["1", "2", "3", "0", "", "x", "99", "-1", "r", " 1 ", "d", "D"]) for _ in range(N_ENTRADAS)]
     teclas[-1:] = ["s"]
     it = iter(teclas)
     salida: list[str] = []

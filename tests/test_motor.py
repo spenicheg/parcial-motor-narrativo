@@ -114,6 +114,10 @@ def test_U5_reiniciar_restaura_escena_y_variables_iniciales(sesion):
     assert sesion.variables == {"conoce_origen": False, "confia_en_la_voz": False}
     assert sesion.recorrido == ["E1"]
     assert sesion.estado is EstadoSesion.EN_CURSO
+    # (cambio hora 6) Reiniciar elimina el historial de retroceso:
+    assert sesion.puede_deshacer is False
+    assert sesion.deshacer().aceptada is False
+    assert sesion.escena.id == "E1"
     # No queda información de la partida anterior:
     ir_a_E3(sesion, investigar=False)
     assert ids(sesion.opciones_disponibles()) == ["activar_sin_verificar", "cortar"]

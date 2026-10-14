@@ -27,6 +27,34 @@ def test_I1_archivo_real_hasta_cada_final(ruta, final):
     assert sesion.opciones_disponibles() == []
 
 
+@pytest.mark.parametrize("ruta, final", RUTAS_FINALES, ids=["->".join(r) for r, _ in RUTAS_FINALES])
+def test_I1_cargar_recorrer_y_deshacer_desde_un_final(ruta, final):
+    """(cambio hora 6) Tras cargar el archivo real y llegar a un final, deshacer vuelve a E3."""
+    sesion = Sesion(cargar_historia(TRANSMISION))
+    for opcion_id in ruta[:-1]:
+        sesion.elegir(opcion_id)
+    variables_en_E3 = sesion.variables
+    sesion.elegir(ruta[-1])
+    assert sesion.escena.id == final
+    assert sesion.deshacer().aceptada
+    assert sesion.escena.id == "E3" and sesion.variables == variables_en_E3
+    assert ruta[-1] in ids(sesion.opciones_disponibles())
+    assert sesion.deshacer().aceptada is False
+
+
+def test_I1_consola_deshacer_desde_un_final():
+    # revisar, investigar, cortar (E6), deshacer, deshacer otra vez, activar con código (E4), salir
+    entradas = iter(["1", "1", "2", "d", "d", "1", "s"])
+    salida: list[str] = []
+    jugar(cargar_historia(TRANSMISION), entrada=lambda _: next(entradas), salida=salida.append)
+    texto = "\n".join(salida)
+    assert "FINAL ALCANZADO (E6)" in texto
+    assert "Se deshizo la última decisión." in texto
+    assert "No hay una decisión para deshacer." in texto
+    assert "FINAL ALCANZADO (E4)" in texto
+    assert "[d] Deshacer" in texto
+
+
 @pytest.mark.parametrize(
     "ruta, final, opciones_F2",
     [(["recoger", "abrir"], "F3", ["abrir", "gritar"]),
