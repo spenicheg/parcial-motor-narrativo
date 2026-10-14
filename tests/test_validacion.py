@@ -25,7 +25,7 @@ CASOS = [
     ("destino_inexistente", lambda d: opcion(d, "E3", "cortar").update(destino="E99"), E.DESTINO_INEXISTENTE, "opción 'cortar' › destino"),
     ("condicion_variable_no_declarada", lambda d: opcion(d, "E3", "cortar").update(condiciones={"tiene_radio": True}), E.VARIABLE_NO_DECLARADA, "condiciones › tiene_radio"),
     ("efecto_variable_no_declarada", lambda d: opcion(d, "E2", "investigar").update(efectos={"conoce_orgen": True}), E.VARIABLE_NO_DECLARADA, "efectos › conoce_orgen"),
-    ("condicion_valor_no_booleano", lambda d: opcion(d, "E3", "activar_con_codigo").update(condiciones={"conoce_origen": "true"}), E.VALOR_NO_BOOLEANO, "condiciones › conoce_origen"),
+    ("condicion_valor_no_booleano", lambda d: opcion(d, "E3", "activar_codigo").update(condiciones={"conoce_origen": "true"}), E.VALOR_NO_BOOLEANO, "condiciones › conoce_origen"),
     ("efecto_valor_no_booleano", lambda d: opcion(d, "E2", "investigar").update(efectos={"conoce_origen": 1}), E.VALOR_NO_BOOLEANO, "efectos › conoce_origen"),
     ("variable_inicial_no_booleana", lambda d: d["variables"].update(conoce_origen=0), E.VALOR_NO_BOOLEANO, "variables › conoce_origen"),
     ("final_con_opciones", lambda d: escena(d, "E4")["opciones"].append(dict(opcion(d, "E1", "revisar"))), E.FINAL_CON_OPCIONES, "escena 'E4'"),
@@ -79,7 +79,7 @@ def test_U4_archivo_ilegible(tmp_path, contenido, fragmento):
 
 def test_CA03_destino_E99_rechaza_la_carga_sin_sesion(tmp_path):
     datos = datos_transmision()
-    opcion(datos, "E3", "activar_con_codigo")["destino"] = "E99"
+    opcion(datos, "E3", "activar_codigo")["destino"] = "E99"
     f = tmp_path / "copia.json"
     f.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
     historia = None
@@ -88,7 +88,7 @@ def test_CA03_destino_E99_rechaza_la_carga_sin_sesion(tmp_path):
     assert historia is None  # no hay historia, por tanto no puede abrirse sesión
     [p] = exc.value.problemas
     assert p.codigo == E.DESTINO_INEXISTENTE
-    assert "E99" in p.mensaje and "E3" in p.ubicacion and "activar_con_codigo" in p.ubicacion
+    assert "E99" in p.mensaje and "E3" in p.ubicacion and "activar_codigo" in p.ubicacion
 
 
 def test_historia_de_referencia_es_valida():

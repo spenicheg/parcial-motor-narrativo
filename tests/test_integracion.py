@@ -9,7 +9,7 @@ from motor_narrativo import EstadoSesion, Sesion, cargar_historia
 from motor_narrativo.cli import jugar
 
 RUTAS_FINALES = [
-    (["revisar", "investigar", "activar_con_codigo"], "E4"),
+    (["revisar", "investigar", "activar_codigo"], "E4"),
     (["revisar", "continuar", "activar_sin_verificar"], "E5"),
     (["revisar", "investigar", "cortar"], "E6"),
     (["revisar", "continuar", "cortar"], "E6"),

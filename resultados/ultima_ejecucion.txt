@@ -7,7 +7,7 @@ testpaths: tests
 plugins: anyio-4.15.1
 collecting ... collected 62 items
 
-tests/test_integracion.py::test_I1_archivo_real_hasta_cada_final[revisar->investigar->activar_con_codigo] PASSED [  1%]
+tests/test_integracion.py::test_I1_archivo_real_hasta_cada_final[revisar->investigar->activar_codigo] PASSED [  1%]
 tests/test_integracion.py::test_I1_archivo_real_hasta_cada_final[revisar->continuar->activar_sin_verificar] PASSED [  3%]
 tests/test_integracion.py::test_I1_archivo_real_hasta_cada_final[revisar->investigar->cortar] PASSED [  4%]
 tests/test_integracion.py::test_I1_archivo_real_hasta_cada_final[revisar->continuar->cortar] PASSED [  6%]
@@ -20,10 +20,10 @@ tests/test_motor.py::test_U1_condiciones_habilitan_solo_opciones_correspondiente
 tests/test_motor.py::test_U1_condiciones_habilitan_solo_opciones_correspondientes[conoce_origen_falso] PASSED [ 17%]
 tests/test_motor.py::test_U1_condicion_multiple_exige_todas PASSED       [ 19%]
 tests/test_motor.py::test_U2_CA01_eleccion_valida_aplica_efectos_y_avanza PASSED [ 20%]
-tests/test_motor.py::test_U2_efectos_y_destino_de_cada_opcion_de_E3[True-activar_con_codigo-E4-variables0] PASSED [ 22%]
+tests/test_motor.py::test_U2_efectos_y_destino_de_cada_opcion_de_E3[True-activar_codigo-E4-variables0] PASSED [ 22%]
 tests/test_motor.py::test_U2_efectos_y_destino_de_cada_opcion_de_E3[False-activar_sin_verificar-E5-variables1] PASSED [ 24%]
 tests/test_motor.py::test_U2_efectos_y_destino_de_cada_opcion_de_E3[False-cortar-E6-variables2] PASSED [ 25%]
-tests/test_motor.py::test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado[activar_con_codigo] PASSED [ 27%]
+tests/test_motor.py::test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado[activar_codigo] PASSED [ 27%]
 tests/test_motor.py::test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado[no_existe] PASSED [ 29%]
 tests/test_motor.py::test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado[revisar] PASSED [ 30%]
 tests/test_motor.py::test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado[] PASSED [ 32%]
@@ -71,4 +71,4 @@ tests/test_validacion.py::test_CA03_destino_E99_rechaza_la_carga_sin_sesion PASS
 tests/test_validacion.py::test_historia_de_referencia_es_valida PASSED   [100%]
 
 -------- generated xml file: /home/claude/parcial/resultados/junit.xml ---------
-============================== 62 passed in 0.33s ==============================
+============================== 62 passed in 0.36s ==============================

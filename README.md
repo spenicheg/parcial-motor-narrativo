@@ -103,7 +103,7 @@ Antes de jugar se valida todo el archivo y se listan **todos** los problemas con
 
 ```
 La historia tiene 1 problema(s) y no se puede jugar:
-  1. [DESTINO_INEXISTENTE] escena 'E3' › opción 'activar_con_codigo' › destino: la escena destino 'E99' no existe
+  1. [DESTINO_INEXISTENTE] escena 'E3' › opción 'activar_codigo' › destino: la escena destino 'E99' no existe
 ```
 
 Códigos: `ARCHIVO_ILEGIBLE`, `ESTRUCTURA_INVALIDA`, `CAMPO_AUSENTE`, `TIPO_INVALIDO`, `INICIO_INEXISTENTE`, `ESCENA_DUPLICADA`, `OPCION_DUPLICADA`, `DESTINO_INEXISTENTE`, `VARIABLE_NO_DECLARADA`, `VALOR_NO_BOOLEANO`, `FINAL_CON_OPCIONES`, `ESCENA_SIN_OPCIONES`.
@@ -124,7 +124,6 @@ resultados/        ultima_ejecucion.txt · junit.xml
 - Solo variables booleanas y condiciones de igualdad.
 - No se analiza si todos los finales son alcanzables; un bloqueo se detecta durante la partida.
 - Interfaz solo de consola; no guarda partidas entre ejecuciones.
-- `historias/la_ultima_transmision.json` se reconstruyó a partir de la tabla de la guía; si el archivo oficial usa otros `id` de opción, actualizar las constantes de ruta en las pruebas.
 
 ## Bibliotecas, licencias y herramientas de apoyo
 

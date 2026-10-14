@@ -195,7 +195,7 @@ flowchart LR
   E1 -->|revisar| E2
   E2 -->|"investigar / conoce_origen=true"| E3
   E2 -->|continuar| E3
-  E3 -->|"activar_con_codigo [conoce_origen=true]"| E4((E4 Rescate))
+  E3 -->|"activar_codigo [conoce_origen=true]"| E4((E4 Rescate))
   E3 -->|"activar_sin_verificar [conoce_origen=false]"| E5((E5 Eco))
   E3 -->|cortar| E6((E6 Silencio))
 ```

@@ -23,7 +23,7 @@ MOTOR = RAIZ / "motor_narrativo"
 # ---------------------------------------------------------------- RNF01
 # Busca literales de código ("E3", 'conoce_origen'…) y nombres de variables de las historias.
 IDENTIFICADORES_DE_HISTORIAS = re.compile(
-    r"""["'](E\d+|F\d+|revisar|investigar|continuar|activar_con_codigo|activar_sin_verificar|cortar)["']"""
+    r"""["'](E\d+|F\d+|revisar|investigar|continuar|activar_codigo|activar_sin_verificar|cortar)["']"""
     r"|\b(conoce_origen|confia_en_la_voz|tiene_llave)\b")
 
 
@@ -104,7 +104,7 @@ def test_RNF03_entradas_aleatorias_del_lector_no_rompen_ni_alteran_el_estado():
     for _ in range(N_ENTRADAS):
         if s.estado is not EstadoSesion.EN_CURSO:
             s.reiniciar()
-        candidatas = ids(s.opciones_disponibles()) + ["activar_con_codigo", "activar_sin_verificar"] + BASURA
+        candidatas = ids(s.opciones_disponibles()) + ["activar_codigo", "activar_sin_verificar"] + BASURA
         entrada = rnd.choice(candidatas)
         antes = (s.escena.id, s.variables)
         r = s.elegir(entrada)  # cualquier excepción aquí hace fallar la prueba

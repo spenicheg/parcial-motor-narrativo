@@ -14,7 +14,7 @@ def ir_a_E3(sesion, investigar: bool):
 @pytest.mark.parametrize(
     "investigar, esperadas",
     [
-        (True, ["activar_con_codigo", "cortar"]),      # conoce_origen = true
+        (True, ["activar_codigo", "cortar"]),      # conoce_origen = true
         (False, ["activar_sin_verificar", "cortar"]),  # conoce_origen = false
     ],
     ids=["conoce_origen_verdadero", "conoce_origen_falso"],
@@ -46,13 +46,13 @@ def test_U2_CA01_eleccion_valida_aplica_efectos_y_avanza(sesion):
     assert r2.aceptada
     assert sesion.escena.id == "E3"
     assert sesion.variables["conoce_origen"] is True
-    assert ids(sesion.opciones_disponibles()) == ["activar_con_codigo", "cortar"]
+    assert ids(sesion.opciones_disponibles()) == ["activar_codigo", "cortar"]
 
 
 @pytest.mark.parametrize(
     "investigar, eleccion, destino, variables",
     [
-        (True, "activar_con_codigo", "E4", {"conoce_origen": True, "confia_en_la_voz": True}),
+        (True, "activar_codigo", "E4", {"conoce_origen": True, "confia_en_la_voz": True}),
         (False, "activar_sin_verificar", "E5", {"conoce_origen": False, "confia_en_la_voz": True}),
         (False, "cortar", "E6", {"conoce_origen": False, "confia_en_la_voz": False}),
     ],
@@ -68,7 +68,7 @@ def test_U2_efectos_y_destino_de_cada_opcion_de_E3(sesion, investigar, eleccion,
 # ---------------------------------------------------------------- U3 / CA02
 @pytest.mark.parametrize(
     "opcion_id",
-    ["activar_con_codigo",   # existe pero no habilitada (CA02)
+    ["activar_codigo",   # existe pero no habilitada (CA02)
      "no_existe",            # inexistente
      "revisar",              # existe en otra escena, no en E3
      "", None, 3, "CORTAR"],  # basura / mayúsculas
@@ -84,7 +84,7 @@ def test_U3_opcion_inexistente_o_no_habilitada_no_altera_estado(sesion, opcion_i
 
 def test_CA02_sin_conocer_origen_activar_sin_verificar_lleva_a_E5(sesion):
     ir_a_E3(sesion, investigar=False)
-    assert sesion.elegir("activar_con_codigo").aceptada is False
+    assert sesion.elegir("activar_codigo").aceptada is False
     assert sesion.escena.id == "E3"
     assert sesion.elegir("activar_sin_verificar").aceptada
     assert sesion.escena.id == "E5"
@@ -106,7 +106,7 @@ def test_U3_variables_expuestas_son_copia(sesion):
 # ---------------------------------------------------------------- U5
 def test_U5_reiniciar_restaura_escena_y_variables_iniciales(sesion):
     ir_a_E3(sesion, investigar=True)
-    sesion.elegir("activar_con_codigo")
+    sesion.elegir("activar_codigo")
     assert sesion.escena.id == "E4" and sesion.variables["confia_en_la_voz"] is True
 
     sesion.reiniciar()
