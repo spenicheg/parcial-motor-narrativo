@@ -1,0 +1,39 @@
+{
+  "titulo": "El faro de Punta Gris",
+  "inicio": "F1",
+  "variables": {
+    "tiene_llave": false
+  },
+  "escenas": [
+    {
+      "id": "F1",
+      "texto": "Llegas al faro al caer la tarde. Junto a la puerta de la caseta del guarda brilla algo entre la arena.",
+      "final": false,
+      "opciones": [
+        {"id": "recoger", "texto": "Recoger el objeto brillante", "destino": "F2", "condiciones": {}, "efectos": {"tiene_llave": true}},
+        {"id": "subir", "texto": "Ignorarlo y subir al faro", "destino": "F2", "condiciones": {}, "efectos": {}}
+      ]
+    },
+    {
+      "id": "F2",
+      "texto": "Arriba, la puerta de la linterna está cerrada. Afuera, un barco se acerca demasiado a las rocas.",
+      "final": false,
+      "opciones": [
+        {"id": "abrir", "texto": "Abrir con la llave y encender la luz", "destino": "F3", "condiciones": {"tiene_llave": true}, "efectos": {}},
+        {"id": "gritar", "texto": "Gritar desde la baranda", "destino": "F4", "condiciones": {}, "efectos": {}}
+      ]
+    },
+    {
+      "id": "F3",
+      "texto": "La luz gira de nuevo después de años. El barco corrige el rumbo y su sirena te saluda.",
+      "final": true,
+      "opciones": []
+    },
+    {
+      "id": "F4",
+      "texto": "El viento se lleva tu voz. Al amanecer, la playa amanece cubierta de cajas de madera.",
+      "final": true,
+      "opciones": []
+    }
+  ]
+}
