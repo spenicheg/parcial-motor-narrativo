@@ -1,0 +1,10 @@
+4646b94 | Sebastian | 2026-10-14 16:03:42 -0500 | docs(cambio): RF14-RF19, modelos, ADR-03, impacto y trazabilidad
+0d1a7d8 | Sebastian | 2026-10-14 16:02:43 -0500 | test(cambio): U6 deshacer; extender U5, I1 y RNF03
+04d4f80 | Sebastian | 2026-10-14 16:02:43 -0500 | feat(cambio): deshacer la última decisión (un nivel) en Sesion y consola
+a0f0392 | Sebastian | 2026-10-14 15:57:55 -0500 | data: usar el archivo oficial la_ultima_transmision.json (id activar_codigo)
+682df61 | Sebastian | 2026-10-14 15:57:11 -0500 | docs: README, arquitectura, diagramas y trazabilidad
+723d970 | Sebastian | 2026-10-14 15:57:11 -0500 | test: U1-U5, I1, validación y RNF
+36a81ff | Sebastian | 2026-10-14 15:57:11 -0500 | feat: interfaz de consola, historia de referencia y segunda historia
+d51ce1e | Sebastian | 2026-10-14 15:57:11 -0500 | feat: cargador y validador de historias con diagnóstico completo
+639ffb8 | Sebastian | 2026-10-14 15:57:10 -0500 | feat: modelo de dominio y reglas de sesión
+033ee79 | Sebastian | 2026-10-14 15:57:10 -0500 | docs: requisitos, proceso y plan de trabajo
