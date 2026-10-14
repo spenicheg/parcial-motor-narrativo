@@ -33,7 +33,7 @@ python -m motor_narrativo validar historias/la_ultima_transmision.json
 python -m motor_narrativo validar historias/ejemplos_con_error/destino_inexistente.json   # muestra el error (código de salida 2)
 ```
 
-En el juego: escriba el **número** de la opción, `r` para reiniciar, `s` para salir.
+En el juego: escriba el **número** de la opción, `d` para deshacer la última decisión (un nivel), `r` para reiniciar, `s` para salir.
 
 ### Rutas para demostrar cada final
 
@@ -42,6 +42,8 @@ En el juego: escriba el **número** de la opción, `r` para reiniciar, `s` para 
 | E4 Rescate | `1`, `1`, `1` | Revisar señal → Investigar archivo → Activar con código |
 | E5 El eco | `1`, `2`, `1` | Revisar señal → Continuar sin investigar → Activar sin verificar |
 | E6 Silencio | `1`, `1`, `2` (o `1`, `2`, `2`) | … → Cortar comunicación |
+
+**Deshacer (cambio de la hora 6):** desde cualquier final pulse `d` para volver a E3 con las variables anteriores; un segundo `d` no hace nada hasta que elija de nuevo. Ejemplo de demo: `1`, `1`, `2` (E6) → `d` (E3) → `1` (E4).
 
 Cómo una condición cambia las opciones: en E3, tras *Investigar* aparece «Activar con código»; tras *Continuar* aparece «Activar sin verificar».
 
@@ -59,8 +61,9 @@ python -m pytest -v --junitxml=resultados/junit.xml | tee resultados/ultima_ejec
 | U2 efectos y destino | `tests/test_motor.py::test_U2_*` |
 | U3 opción inexistente/no habilitada no altera estado | `tests/test_motor.py::test_U3_*` |
 | U4 errores de contenido (parametrizada) | `tests/test_validacion.py::test_U4_*` |
-| U5 reinicio | `tests/test_motor.py::test_U5_*` |
-| I1 archivo real + motor hasta un final | `tests/test_integracion.py::test_I1_*` |
+| U5 reinicio (+ elimina historial de retroceso) | `tests/test_motor.py::test_U5_*` |
+| U6 deshacer (cambio hora 6) | `tests/test_deshacer.py::test_U6_*` |
+| I1 archivo real + motor hasta un final (+ deshacer desde un final) | `tests/test_integracion.py::test_I1_*` |
 | CA01 / CA02 / CA03 | `test_U2_CA01_*`, `test_CA02_*`, `test_CA03_*` |
 | Bloqueo en partida | `test_escena_no_final_sin_opciones_habilitadas_queda_bloqueada` |
 | RNF01–RNF03 | `tests/test_rnf.py` |
@@ -120,7 +123,7 @@ resultados/        ultima_ejecucion.txt · junit.xml
 
 ## Limitaciones conocidas
 
-- No hay retroceso (acuerdo provisional, ver `docs/requisitos.md` §4).
+- El retroceso es de un solo nivel y no existe «rehacer» (según la solicitud de cambio).
 - Solo variables booleanas y condiciones de igualdad.
 - No se analiza si todos los finales son alcanzables; un bloqueo se detecta durante la partida.
 - Interfaz solo de consola; no guarda partidas entre ejecuciones.
@@ -137,7 +140,7 @@ resultados/        ultima_ejecucion.txt · junit.xml
 ## Versiones
 
 - `v1-antes-cambio`: versión inicial antes de la solicitud de cambio.
-- `v2-con-cambio`: _(crear al incorporar el cambio)_.
+- `v2-con-cambio`: incorpora deshacer (RF14–RF19). Impacto: `docs/trazabilidad.md` y `git diff v1-antes-cambio v2-con-cambio --stat`.
 - Historial: `git log --pretty=format:"%h | %an | %ad | %s" --date=iso > resultados/git_log.txt`
 
 ## Video de demostración

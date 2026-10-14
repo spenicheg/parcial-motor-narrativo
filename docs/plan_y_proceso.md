@@ -35,7 +35,10 @@
 | B06 | Como coordinadora quiero pruebas automáticas de RNF | RNF01–03 | B | 1 h |
 | B07 | Segunda historia + README | RF01 | A | 0,5 h |
 | B08 | Diagramas, ADR, informe | — | A+B | 2 h |
-| B09 | Solicitud de cambio (hora 6) | por definir | A+B | 2–3 h |
+| B09a | Como lector quiero deshacer mi última decisión y que se reviertan sus consecuencias | RF14, RF17, RF18 | A | 1 h |
+| B09b | Como lector quiero que el retroceso sea de un nivel y se borre al reiniciar | RF15, RF16 | A | 0,5 h |
+| B09c | Como lector quiero la tecla `d` en la consola | RF19 | B | 0,5 h |
+| B09d | Actualizar requisitos, modelos, trazabilidad e impacto; U6 y extensiones de U5/I1 | — | B | 1,5 h |
 
 **Tablero:** columnas *Por hacer / En curso / En revisión / Hecho* (GitHub Projects, Trello o una tabla). Capturas: inicial (hora 0–1) y final (hora 11–12).
 
@@ -66,6 +69,6 @@
 
 **Preparación para el cambio:** puntos de extensión probables y dónde tocarían:
 - Variables no booleanas u operadores → `cargador.validar` (tipos) + `Opcion.habilitada`.
-- Retroceso → `Sesion` (pila de estados) + comando en `cli.py`.
+- Retroceso → `Sesion` (pila de estados) + comando en `cli.py`. **← Fue el cambio solicitado; se resolvió exactamente aquí (ADR-03).**
 - Nuevo tipo de error → `errores.py` + `cargador.py` + caso en `CASOS` de U4.
 - Opciones de un solo uso / contador de visitas → `Sesion.recorrido` ya existe.

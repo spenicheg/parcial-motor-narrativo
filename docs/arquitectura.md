@@ -23,6 +23,7 @@ flowchart LR
   L --- CU2((CU2 Ver escena y opciones))
   L --- CU3((CU3 Elegir opción))
   L --- CU4((CU4 Reiniciar partida))
+  L --- CU7((CU7 Deshacer última decisión))
   E([Escritora]) --- CU5((CU5 Validar historia))
   CU1 -. include .-> CU5
   CU3 -. extend: final o bloqueo .-> CU6((CU6 Ver desenlace / bloqueo))
@@ -36,6 +37,7 @@ flowchart LR
 | CU4 | RF09 |
 | CU5 | RF10, RF11, RF12 |
 | CU6 | RF08, RF13 |
+| CU7 (cambio) | RF14–RF19 |
 
 ## 3. Clases del dominio
 
@@ -66,10 +68,18 @@ classDiagram
     -escena_id: str
     -variables: Map~str,bool~
     -recorrido: List~str~
+    -anterior: Instantanea
+    puede_deshacer() bool
     opciones_disponibles() List~Opcion~
     estado() EstadoSesion
     elegir(opcion_id) ResultadoEleccion
+    deshacer() ResultadoEleccion
     reiniciar()
+  }
+  class Instantanea {
+    escena_id: str
+    variables: Map~str,bool~
+    recorrido: List~str~
   }
   class EstadoSesion {
     <<enumeration>>
@@ -94,6 +104,7 @@ classDiagram
   Escena "1" *-- "0..*" Opcion
   Opcion --> Escena : destino
   Sesion --> Historia
+  Sesion "1" o-- "0..1" Instantanea : anterior
   Sesion ..> EstadoSesion
   Cargador ..> Historia : construye
   Cargador ..> ErrorContenido : lanza
@@ -114,6 +125,7 @@ sequenceDiagram
   S->>S: estado == EN_CURSO?
   S->>O: habilitada(variables) [por cada opción]
   alt opción habilitada encontrada
+    S->>S: anterior ← instantánea(escena, variables, recorrido)
     S->>S: variables ← variables + efectos
     S->>S: escena ← destino; recorrido += destino
     S-->>CLI: ResultadoEleccion(aceptada=true)
@@ -122,6 +134,25 @@ sequenceDiagram
   end
   CLI->>S: escena, estado, opciones_disponibles()
   CLI-->>Lector: texto de escena y opciones / FINAL / bloqueo
+```
+
+### 4.1 Secuencia: deshacer (cambio hora 6)
+
+```mermaid
+sequenceDiagram
+  actor Lector
+  participant CLI as cli.jugar
+  participant S as Sesion
+  Lector->>CLI: "d"
+  CLI->>S: deshacer()
+  alt anterior ≠ nulo
+    S->>S: escena, variables, recorrido ← anterior
+    S->>S: anterior ← nulo
+    S-->>CLI: ResultadoEleccion(true, "Se deshizo…")
+  else sin historial
+    S-->>CLI: ResultadoEleccion(false, "No hay una decisión para deshacer.")
+  end
+  CLI-->>Lector: escena restaurada / mensaje
 ```
 
 ## 5. Estados de una sesión
@@ -136,6 +167,14 @@ stateDiagram-v2
   Final --> EnCurso: reiniciar()
   Bloqueada --> EnCurso: reiniciar()
   EnCurso --> EnCurso: reiniciar()
+  EnCurso --> EnCurso: deshacer() [hay anterior]
+  Final --> EnCurso: deshacer() [hay anterior]
+  Bloqueada --> EnCurso: deshacer() [hay anterior]
+  note right of EnCurso
+    Variable de historial: anterior ∈ {nulo, instantánea}
+    elegir válida → anterior = estado previo
+    deshacer / reiniciar / inicio → anterior = nulo
+  end note
   Final --> [*]: salir
   Bloqueada --> [*]: salir
 ```
@@ -184,9 +223,15 @@ Regla de dependencias: las flechas solo van hacia abajo. `sesion.py` no sabe que
 - **Elección:** (c). `Opcion.habilitada` = todas las igualdades se cumplen; efectos = actualización del mapa.
 - **Consecuencias:** + 0 líneas de motor por historia; + sin `eval` (seguro). − Solo booleanos; ampliar a números u operadores requiere cambiar validador y `Opcion.habilitada` (cambio localizado en dos funciones).
 
+### ADR-03 Deshacer mediante instantánea del estado anterior (cambio hora 6)
+- **Contexto:** el cliente pide deshacer la última decisión revirtiendo todas sus consecuencias, un solo nivel, también desde un final.
+- **Alternativas:** (a) calcular efectos inversos de la opción (requiere guardar valores previos de cada variable tocada; frágil si cambian los efectos); (b) patrón Command con pila de comandos (pensado para múltiples niveles y rehacer, que no se piden); (c) guardar una **instantánea inmutable** (escena, variables, recorrido) antes de cada elección válida.
+- **Elección:** (c), con un único campo `anterior`.
+- **Consecuencias:** + restauración exacta por construcción (RF14); + cambio confinado a `sesion.py` y a un comando en `cli.py`: **0 cambios** en `modelo.py`, `cargador.py`, `errores.py` ni en los JSON; + si se piden más niveles, `anterior` pasa a ser una pila. − Memoria de una copia de variables por partida (despreciable).
+
 ## 8. Decisión de diseño detallado (unidad 7)
 
-`Sesion.elegir` recibe un **id**, no un número de menú, y siempre devuelve un `ResultadoEleccion` en vez de lanzar excepciones. Así (1) la consola es la única que conoce la numeración, y una futura interfaz web no cambia las reglas (bajo acoplamiento); (2) el estado se calcula en una copia y solo se asigna al final, de modo que una entrada inválida no puede dejarlo a medias (RF06, RNF03). Las vistas `variables` y `recorrido` devuelven copias para que nadie modifique el estado desde fuera.
+`Sesion.elegir` recibe un **id**, no un número de menú, y siempre devuelve un `ResultadoEleccion` en vez de lanzar excepciones. Así (1) la consola es la única que conoce la numeración, y una futura interfaz web no cambia las reglas (bajo acoplamiento); (2) el estado se calcula en una copia y solo se asigna al final, de modo que una entrada inválida no puede dejarlo a medias (RF06, RNF03). Las vistas `variables` y `recorrido` devuelven copias para que nadie modifique el estado desde fuera. Con el cambio, la instantánea se toma **solo** en la rama de elección válida, de modo que una entrada inválida no puede reemplazar el historial (RF17).
 
 ## 9. Mapa narrativo (contenido, no modelo de software)
 

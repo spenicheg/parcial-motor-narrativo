@@ -23,6 +23,17 @@ Cada RF es atómico, observable y tiene criterio de aceptación (CA) verificable
 | RF12 | N06 | El comando `validar` revisa una historia sin jugarla (código de salida 0 válida / 2 inválida). | `python -m motor_narrativo validar …` | `test_I1_comando_validar_*` |
 | RF13 | N03/N06 | Si en una escena no final ninguna opción está habilitada, se informa el bloqueo y se permite reiniciar. | Sesión bloqueada → mensaje y `reiniciar()` vuelve a E1. | `test_escena_no_final_sin_opciones_habilitadas_*` |
 
+### Requisitos agregados por la solicitud de cambio (hora 6)
+
+| ID | Necesidad | Requisito | Criterio de aceptación | Prueba |
+|---|---|---|---|---|
+| RF14 | Cambio / N03, N04 | El lector puede deshacer su última elección válida; se restauran exactamente la escena, todas las variables y el recorrido previos a esa elección. | Desde E2, `investigar` → E3 con `conoce_origen=true`; deshacer → E2 con `conoce_origen=false`. | `tests/test_deshacer.py::test_U6_ejemplo_del_anexo` |
+| RF15 | Cambio | El retroceso es de un solo nivel: tras deshacer no se puede volver a deshacer hasta una nueva elección válida. No hay rehacer. | Segundo `deshacer()` → rechazo sin cambios; tras `continuar`, `deshacer()` vuelve a funcionar. | `test_U6_un_solo_nivel`, `test_U6_nueva_eleccion_valida_*` |
+| RF16 | Cambio / N05 | Al comenzar no hay retroceso disponible; reiniciar elimina el historial. | Sesión nueva o reiniciada → `puede_deshacer=false`, `deshacer()` rechazado. | `test_U6_al_comenzar_*`, `tests/test_motor.py::test_U5_*` |
+| RF17 | Cambio / N03 | Una opción inexistente o no habilitada no modifica la sesión ni reemplaza el historial de la última elección válida. | En E3 enviar `activar_codigo` sin conocer origen y luego deshacer → E2 (previo a `continuar`). | `test_U6_entrada_invalida_*` |
+| RF18 | Cambio / N05 | Se puede deshacer desde un final (E4, E5, E6): se regresa a E3 con los valores previos a esa elección. | E6 → deshacer → E3, `confia_en_la_voz` con su valor anterior. | `test_U6_deshacer_desde_un_final_*`, `tests/test_integracion.py::test_I1_cargar_recorrer_y_deshacer_*` |
+| RF19 | Cambio | La consola ofrece `[d] Deshacer` solo cuando hay retroceso disponible y confirma o rechaza la acción con un mensaje. | Ruta `1,1,2,d,d` muestra «Se deshizo…» y luego «No hay una decisión para deshacer». | `test_I1_consola_deshacer_desde_un_final` |
+
 ## 2. Requisitos no funcionales (medibles)
 
 | ID | Atributo | Requisito y métrica | Procedimiento de verificación | Evidencia |
@@ -37,6 +48,8 @@ Cada RF es atómico, observable y tiene criterio de aceptación (CA) verificable
 
 ## 4. Conflicto: retroceso vs. decisiones irreversibles
 
+> **Actualización (hora 6, `v2-con-cambio`):** el cliente resolvió el conflicto: retroceso de **un solo nivel** que revierte todas las consecuencias de la última decisión (RF14–RF19). El texto siguiente se conserva como registro de la v1.
+
 - **Escritora:** quiere poder retroceder siempre. **Diseñador:** quiere decisiones irreversibles.
 - **Acuerdo provisional (v1):** no se implementa retroceso; las decisiones son irreversibles dentro de la partida y solo se puede **reiniciar** (RF09).
 - **Pregunta de aclaración al cliente:** «¿El retroceso es una ayuda de lectura (deshacer la última elección, con sus efectos) que el autor puede habilitar o bloquear por escena, o debe existir siempre en todas las escenas?»
@@ -49,7 +62,8 @@ Cada RF es atómico, observable y tiene criterio de aceptación (CA) verificable
 | P1 | ¿Las condiciones/efectos son obligatorios en cada opción aunque estén vacíos? | **Supuesto:** sí, como en el contrato de referencia (`{}`), para que el archivo sea explícito. |
 | P2 | ¿El lector elige por número o por id? | **Supuesto:** la consola muestra números; el motor recibe ids. Así la interfaz no afecta las reglas. |
 | P3 | ¿Se valida que todos los finales sean alcanzables? | No: la guía no lo exige. Se detecta el bloqueo durante la partida (RF13). |
-| P4 | Retroceso | Ver §4 (pendiente del cliente). |
+| P4 | Retroceso | **Respondida en la solicitud de cambio:** deshacer un nivel, sin rehacer (RF14–RF19). |
+| P5 | ¿Se puede deshacer en una escena bloqueada? | **Supuesto:** sí; el anexo no lo prohíbe y es la forma natural de salir del bloqueo sin perder toda la partida. |
 
 ## 6. Revisión entre integrantes — defecto encontrado
 
