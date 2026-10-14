@@ -1,6 +1,6 @@
 # Fundamentos, proceso, agilidad y plan de 12 horas
 
-> Completar con los nombres reales de la pareja: **Integrante A** = Sebastián (…), **Integrante B** = (…).
+> **Integrante A** = Sebastián Peniche Gonzalez, **Integrante B** = Santiago Peniche Gonzalez.
 
 ## Unidad 1 — Fundamentos
 
